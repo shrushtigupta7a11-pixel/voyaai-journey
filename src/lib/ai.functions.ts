@@ -1,0 +1,211 @@
+import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { chatJSON, chatText } from "./ai-gateway.server";
+
+/* ---------------- Trip planner ---------------- */
+
+const PlanInput = z.object({
+  destination: z.string().min(1).max(120),
+  days: z.number().int().min(1).max(21),
+  budget: z.number().nonnegative().max(1_000_000),
+  currency: z.string().min(1).max(6).default("USD"),
+  travelers: z.number().int().min(1).max(20).default(1),
+  travelStyle: z.string().max(60).optional(),
+  interests: z.array(z.string().max(40)).max(12).optional(),
+  saveTrip: z.boolean().default(false),
+});
+
+export const generateTripPlan = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((v: unknown) => PlanInput.parse(v))
+  .handler(async ({ data, context }) => {
+    const sys = `You are VoyaAI, an expert travel concierge. Produce a JSON plan with keys:
+{
+  "title": string,
+  "summary": string,
+  "days": [{ "day": number, "title": string, "morning": string, "afternoon": string, "evening": string, "food": string, "tips": string, "estimated_cost": number }],
+  "top_attractions": string[],
+  "budget_breakdown": { "flights": number, "stay": number, "food": number, "transport": number, "activities": number, "misc": number },
+  "packing_hints": string[]
+}
+Costs in the requested currency. Return ONLY JSON.`;
+    const user = `Plan a ${data.days}-day trip to ${data.destination} for ${data.travelers} traveler(s). Budget: ${data.budget} ${data.currency}. Style: ${data.travelStyle ?? "balanced"}. Interests: ${(data.interests ?? []).join(", ") || "general sightseeing"}.`;
+
+    const plan = await chatJSON<{
+      title: string;
+      summary: string;
+      days: Array<{
+        day: number;
+        title: string;
+        morning: string;
+        afternoon: string;
+        evening: string;
+        food: string;
+        tips: string;
+        estimated_cost: number;
+      }>;
+      top_attractions: string[];
+      budget_breakdown: Record<string, number>;
+      packing_hints: string[];
+    }>([
+      { role: "system", content: sys },
+      { role: "user", content: user },
+    ]);
+
+    let tripId: string | null = null;
+    if (data.saveTrip) {
+      const { data: trip, error } = await context.supabase
+        .from("trips")
+        .insert({
+          user_id: context.userId,
+          title: plan.title || `${data.destination} trip`,
+          destination: data.destination,
+          budget: data.budget,
+          currency: data.currency,
+          travelers: data.travelers,
+          travel_style: data.travelStyle ?? null,
+          interests: data.interests ?? null,
+          notes: plan.summary,
+          status: "planning",
+        })
+        .select("id")
+        .single();
+      if (error) throw new Error(error.message);
+      tripId = trip.id;
+      const rows = plan.days.map((d) => ({
+        trip_id: tripId!,
+        user_id: context.userId,
+        day_number: d.day,
+        title: d.title,
+        morning: d.morning,
+        afternoon: d.afternoon,
+        evening: d.evening,
+        tips: `${d.food ? "Food: " + d.food + "\n" : ""}${d.tips ?? ""}`,
+        estimated_cost: d.estimated_cost ?? null,
+      }));
+      if (rows.length) {
+        const { error: ie } = await context.supabase.from("itineraries").insert(rows);
+        if (ie) throw new Error(ie.message);
+      }
+    }
+
+    return { plan, tripId };
+  });
+
+/* ---------------- Packing list ---------------- */
+
+const PackInput = z.object({
+  destination: z.string().min(1).max(120),
+  days: z.number().int().min(1).max(60),
+  season: z.string().max(30).optional(),
+  activities: z.array(z.string().max(40)).max(10).optional(),
+  tripType: z.string().max(40).optional(),
+  gender: z.string().max(20).optional(),
+});
+
+export const generatePackingList = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((v: unknown) => PackInput.parse(v))
+  .handler(async ({ data, context }) => {
+    const sys = `Return ONLY JSON: { "title": string, "items": [ { "category": string, "name": string, "checked": false } ] } with 25-40 items across categories like Clothing, Documents, Toiletries, Electronics, Health, Misc. Adjust for climate & activities.`;
+    const user = `Trip: ${data.destination}, ${data.days} days, ${data.season ?? "current season"}. Type: ${data.tripType ?? "leisure"}. Traveler: ${data.gender ?? "any"}. Activities: ${(data.activities ?? []).join(", ") || "general"}.`;
+    const list = await chatJSON<{
+      title: string;
+      items: Array<{ category: string; name: string; checked: boolean }>;
+    }>([
+      { role: "system", content: sys },
+      { role: "user", content: user },
+    ]);
+    const { data: row, error } = await context.supabase
+      .from("packing_lists")
+      .insert({
+        user_id: context.userId,
+        title: list.title || `Packing for ${data.destination}`,
+        items: list.items,
+      })
+      .select("id")
+      .single();
+    if (error) throw new Error(error.message);
+    return { id: row.id, ...list };
+  });
+
+/* ---------------- Chat (threaded, DB-backed) ---------------- */
+
+const ChatInput = z.object({
+  threadId: z.string().uuid(),
+  message: z.string().min(1).max(4000),
+});
+
+export const sendChatMessage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((v: unknown) => ChatInput.parse(v))
+  .handler(async ({ data, context }) => {
+    const { data: thread, error: te } = await context.supabase
+      .from("chat_threads")
+      .select("id")
+      .eq("id", data.threadId)
+      .single();
+    if (te || !thread) throw new Error("Thread not found");
+
+    const { data: history } = await context.supabase
+      .from("chat_messages")
+      .select("role, content")
+      .eq("thread_id", data.threadId)
+      .order("created_at", { ascending: true })
+      .limit(30);
+
+    const { error: ue } = await context.supabase.from("chat_messages").insert({
+      thread_id: data.threadId,
+      user_id: context.userId,
+      role: "user",
+      content: data.message,
+    });
+    if (ue) throw new Error(ue.message);
+
+    const messages = [
+      {
+        role: "system" as const,
+        content:
+          "You are VoyaAI, a warm, worldly travel concierge. Answer clearly with concise markdown when helpful. Cover destinations, visas, budgets, safety, food, packing, and local etiquette.",
+      },
+      ...(history ?? []).map((m) => ({
+        role: m.role as "user" | "assistant" | "system",
+        content: m.content,
+      })),
+      { role: "user" as const, content: data.message },
+    ];
+
+    const reply = await chatText(messages);
+
+    await context.supabase.from("chat_messages").insert({
+      thread_id: data.threadId,
+      user_id: context.userId,
+      role: "assistant",
+      content: reply,
+    });
+
+    if (!history || history.length === 0) {
+      const title = data.message.slice(0, 60).replace(/\s+/g, " ").trim();
+      await context.supabase.from("chat_threads").update({ title }).eq("id", data.threadId);
+    } else {
+      await context.supabase
+        .from("chat_threads")
+        .update({ updated_at: new Date().toISOString() })
+        .eq("id", data.threadId);
+    }
+
+    return { reply };
+  });
+
+export const createChatThread = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
+      .from("chat_threads")
+      .insert({ user_id: context.userId, title: "New conversation" })
+      .select("id")
+      .single();
+    if (error) throw new Error(error.message);
+    return { id: data.id };
+  });
