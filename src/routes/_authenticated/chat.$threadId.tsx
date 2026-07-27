@@ -1,4 +1,5 @@
-import { createFileRoute, useParams, useServerFn } from "@tanstack/react-router";
+import { createFileRoute, useParams } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { sendChatMessage } from "@/lib/ai.functions";
@@ -19,7 +20,7 @@ function ChatThread() {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
-  const send = useServerFn(sendChatMessage);
+  const send = (sendChatMessage);
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 

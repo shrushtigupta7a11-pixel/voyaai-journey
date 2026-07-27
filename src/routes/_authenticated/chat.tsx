@@ -1,4 +1,5 @@
-import { createFileRoute, Link, Outlet, useNavigate, useParams, useServerFn } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useNavigate, useParams } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { createChatThread } from "@/lib/ai.functions";
@@ -19,7 +20,7 @@ function ChatLayout() {
   const [threads, setThreads] = useState<{ id: string; title: string }[]>([]);
   const params = useParams({ strict: false }) as { threadId?: string };
   const navigate = useNavigate();
-  const newThread = useServerFn(createChatThread);
+  const newThread = (createChatThread);
 
   async function refresh() {
     const { data } = await supabase.from("chat_threads").select("id,title").order("updated_at", { ascending: false });

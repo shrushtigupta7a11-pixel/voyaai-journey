@@ -1,4 +1,5 @@
-import { createFileRoute, useNavigate, useServerFn } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,7 +23,7 @@ export const Route = createFileRoute("/_authenticated/planner")({
 const COLORS = ["#0EA5E9", "#FF6B4A", "#10B981", "#F59E0B", "#8B5CF6", "#EC4899"];
 
 function Planner() {
-  const plan = useServerFn(generateTripPlan);
+  const plan = (generateTripPlan);
   const navigate = useNavigate();
   const [destination, setDestination] = useState("");
   const [days, setDays] = useState(5);

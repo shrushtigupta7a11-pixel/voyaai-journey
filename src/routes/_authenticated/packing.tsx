@@ -1,4 +1,5 @@
-import { createFileRoute, useServerFn } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { generatePackingList } from "@/lib/ai.functions";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,7 +24,7 @@ export const Route = createFileRoute("/_authenticated/packing")({
 });
 
 function Packing() {
-  const gen = useServerFn(generatePackingList);
+  const gen = (generatePackingList);
   const [dest, setDest] = useState(""); const [days, setDays] = useState(5);
   const [season, setSeason] = useState("summer"); const [type, setType] = useState("leisure");
   const [busy, setBusy] = useState(false);
