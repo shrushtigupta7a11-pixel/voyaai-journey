@@ -155,36 +155,32 @@ function Dashboard() {
             </div>
           ) : (
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              {data.trips.map((t, i) => {
-                const grads = [
-                  "linear-gradient(135deg, oklch(0.55 0.15 235), oklch(0.62 0.16 200))",
-                  "linear-gradient(135deg, oklch(0.7 0.18 32), oklch(0.72 0.17 55))",
-                  "linear-gradient(135deg, oklch(0.62 0.17 160), oklch(0.72 0.16 180))",
-                  "linear-gradient(135deg, oklch(0.6 0.2 300), oklch(0.7 0.17 330))",
-                ];
-                return (
-                  <Link key={t.id} to="/trips/$tripId" params={{ tripId: t.id }}
-                    className="group relative overflow-hidden rounded-2xl border border-border bg-card transition hover:-translate-y-0.5 hover:shadow-luxury">
-                    <div className="relative h-28 overflow-hidden" style={{ background: grads[i % grads.length] }}>
-                      {t.cover_image_url && (
-                        <img src={t.cover_image_url} alt={t.title}
-                          className="absolute inset-0 h-full w-full object-cover opacity-90 transition group-hover:scale-105" />
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                      <span className="absolute right-3 top-3 rounded-full bg-white/85 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-foreground backdrop-blur">
-                        {t.status || "planned"}
-                      </span>
-                    </div>
-                    <div className="p-4">
-                      <div className="font-display text-lg leading-tight">{t.title}</div>
-                      <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+              {data.trips.map((t, i) => (
+                <Link key={t.id} to="/trips/$tripId" params={{ tripId: t.id }}
+                  className="group relative overflow-hidden rounded-2xl border border-border bg-card transition hover:-translate-y-0.5 hover:shadow-luxury">
+                  <div className="relative h-32 overflow-hidden bg-muted">
+                    <img
+                      src={t.cover_image_url || destinationImage(t.destination, i)}
+                      alt={`${t.destination} — ${t.title}`}
+                      loading="lazy"
+                      onError={(e) => { (e.currentTarget as HTMLImageElement).src = destinationImage(t.destination, i); }}
+                      className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
+                    <span className="absolute right-3 top-3 rounded-full bg-white/85 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-foreground backdrop-blur">
+                      {t.status || "planned"}
+                    </span>
+                    <div className="absolute inset-x-3 bottom-2 text-white">
+                      <div className="font-display text-lg leading-tight drop-shadow">{t.title}</div>
+                      <div className="flex items-center gap-1 text-[11px] opacity-90">
                         <MapPin className="size-3" /> {t.destination}
                       </div>
                     </div>
-                  </Link>
-                );
-              })}
+                  </div>
+                </Link>
+              ))}
             </div>
+
           )}
         </section>
 
