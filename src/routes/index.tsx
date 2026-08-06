@@ -264,8 +264,7 @@ function Landing() {
         </div>
       </section>
 
-        </div>
-      </section>
+
 
       {/* TESTIMONIALS */}
       <section id="testimonials" className="px-6 py-24">
