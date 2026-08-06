@@ -240,27 +240,30 @@ function Landing() {
 
 
       {/* AI FEATURES */}
-      <section id="features" className="px-6 py-24 bg-surface">
+      <section id="features" className="px-6 py-20 bg-surface">
         <div className="mx-auto max-w-6xl">
           <div className="max-w-2xl">
             <span className="text-xs uppercase tracking-widest text-accent font-semibold">The intelligence layer</span>
-            <h2 className="mt-2 font-display text-5xl md:text-6xl">Every travel superpower, in one place.</h2>
-            <p className="mt-6 text-lg text-muted-foreground">
+            <h2 className="mt-2 font-display text-4xl md:text-5xl">Every travel superpower, in one place.</h2>
+            <p className="mt-4 text-muted-foreground">
               Fifteen AI capabilities — from planning to safety — woven into a
               single, calm interface.
             </p>
           </div>
-          <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {features.map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="group rounded-3xl border border-border bg-card p-6 shadow-soft transition hover:-translate-y-1 hover:shadow-luxury">
-                <div className="grid size-11 place-items-center rounded-2xl bg-primary/10 text-primary">
-                  <Icon className="size-5" />
+              <div key={title} className="group rounded-2xl border border-border bg-card p-4 shadow-soft transition duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-luxury">
+                <div className="grid size-9 place-items-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-primary-foreground">
+                  <Icon className="size-4" />
                 </div>
-                <h3 className="mt-5 font-display text-2xl">{title}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">{desc}</p>
+                <h3 className="mt-3 font-display text-lg leading-tight">{title}</h3>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{desc}</p>
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
         </div>
       </section>
 
