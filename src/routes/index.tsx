@@ -41,18 +41,18 @@ export const Route = createFileRoute("/")({
 });
 
 const destinations = [
-  { name: "Kyoto", country: "Japan", tag: "Culture", hue: "from-rose-400 via-orange-300 to-amber-200" },
-  { name: "Santorini", country: "Greece", tag: "Islands", hue: "from-sky-400 via-cyan-300 to-blue-200" },
-  { name: "Reykjavík", country: "Iceland", tag: "Adventure", hue: "from-indigo-400 via-violet-300 to-fuchsia-200" },
-  { name: "Marrakesh", country: "Morocco", tag: "Markets", hue: "from-amber-500 via-orange-400 to-red-300" },
-  { name: "Queenstown", country: "New Zealand", tag: "Nature", hue: "from-emerald-500 via-teal-400 to-cyan-300" },
-  { name: "Lisbon", country: "Portugal", tag: "Coastal", hue: "from-yellow-300 via-orange-300 to-pink-300" },
+  { name: "Kyoto", country: "Japan", tag: "Culture", img: destKyoto, rating: 4.9, from: 1180 },
+  { name: "Santorini", country: "Greece", tag: "Islands", img: destSantorini, rating: 4.8, from: 990 },
+  { name: "Reykjavík", country: "Iceland", tag: "Adventure", img: destIceland, rating: 4.7, from: 1420 },
+  { name: "Marrakesh", country: "Morocco", tag: "Markets", img: destMarrakesh, rating: 4.6, from: 720 },
+  { name: "Queenstown", country: "New Zealand", tag: "Nature", img: destQueenstown, rating: 4.8, from: 1650 },
+  { name: "Lisbon", country: "Portugal", tag: "Coastal", img: destLisbon, rating: 4.7, from: 640 },
 ];
 
 const packages = [
-  { title: "The Amalfi Slow-Burn", days: "7 days", price: 2400, hue: "from-orange-300 to-rose-400" },
-  { title: "Kyoto Zen Circuit", days: "10 days", price: 3100, hue: "from-emerald-300 to-teal-500" },
-  { title: "Iceland Ring Road", days: "8 days", price: 3600, hue: "from-sky-300 to-indigo-500" },
+  { title: "The Amalfi Slow-Burn", days: "7 days", price: 2400, img: pkgAmalfi, spots: "4 spots left" },
+  { title: "Kyoto Zen Circuit", days: "10 days", price: 3100, img: pkgKyoto, spots: "Popular" },
+  { title: "Iceland Ring Road", days: "8 days", price: 3600, img: pkgIceland, spots: "New" },
 ];
 
 const features = [
