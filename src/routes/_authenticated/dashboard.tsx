@@ -6,6 +6,8 @@ import {
   ArrowUpRight, Compass, Sun, TrendingUp, Heart, Plus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { destinationImage } from "@/lib/destination-images";
+
 
 const stats = (uid: string) => queryOptions({
   queryKey: ["dashboard", uid],
