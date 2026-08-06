@@ -160,21 +160,40 @@ function Landing() {
           <div className="flex items-end justify-between">
             <div>
               <span className="text-xs uppercase tracking-widest text-accent font-semibold">Trending</span>
-              <h2 className="mt-2 font-display text-5xl">Curated escapes</h2>
+              <h2 className="mt-2 font-display text-4xl">Curated escapes</h2>
             </div>
-            <a href="#features" className="hidden text-sm font-medium text-primary md:inline-flex">View all →</a>
+            <a href="#features" className="hidden text-sm font-medium text-primary md:inline-flex hover:underline">View all →</a>
           </div>
-          <div className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6">
+          <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {destinations.map((d) => (
-              <div key={d.name} className="group relative aspect-[4/5] overflow-hidden rounded-3xl shadow-soft cursor-pointer">
-                <div className={`absolute inset-0 bg-gradient-to-br ${d.hue} transition-transform duration-700 group-hover:scale-105`} />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-                <div className="absolute bottom-5 left-5 right-5 text-white">
-                  <span className="inline-block rounded-full bg-white/20 backdrop-blur px-2.5 py-0.5 text-[10px] uppercase tracking-wider">{d.tag}</span>
-                  <h3 className="mt-3 font-display text-3xl leading-tight">{d.name}</h3>
-                  <p className="text-sm opacity-80">{d.country}</p>
+              <Link
+                key={d.name}
+                to="/auth"
+                aria-label={`Plan a trip to ${d.name}, ${d.country}`}
+                className="group relative aspect-[4/5] overflow-hidden rounded-2xl shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-luxury focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                <img
+                  src={d.img}
+                  alt={`${d.name}, ${d.country}`}
+                  width={800}
+                  height={1000}
+                  loading="lazy"
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-transparent" />
+                <span className="absolute left-3 top-3 rounded-full bg-white/25 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-white backdrop-blur">{d.tag}</span>
+                <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-foreground">
+                  <Star className="size-2.5 fill-current text-accent" /> {d.rating}
+                </span>
+                <div className="absolute bottom-3 left-3 right-3 text-white">
+                  <h3 className="font-display text-xl leading-tight">{d.name}</h3>
+                  <p className="text-xs opacity-80">{d.country}</p>
+                  <div className="mt-2 flex items-center justify-between text-[11px] opacity-0 transition-all duration-300 group-hover:opacity-100">
+                    <span>from ₹{(d.from * 88).toLocaleString("en-IN")}</span>
+                    <span className="inline-flex items-center gap-1 font-medium">Plan <ArrowRight className="size-3" /></span>
+                  </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -183,25 +202,42 @@ function Landing() {
       {/* PACKAGES */}
       <section className="px-6 py-16">
         <div className="mx-auto max-w-6xl">
-          <h2 className="font-display text-4xl md:text-5xl">Popular packages</h2>
-          <p className="mt-2 text-muted-foreground">Hand-picked routes, pre-tuned by the AI.</p>
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
+          <h2 className="font-display text-4xl">Popular packages</h2>
+          <p className="mt-2 text-sm text-muted-foreground">Hand-picked routes, pre-tuned by the AI.</p>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {packages.map((p) => (
-              <div key={p.title} className="rounded-3xl border border-border bg-card shadow-soft overflow-hidden">
-                <div className={`h-40 bg-gradient-to-br ${p.hue}`} />
-                <div className="p-6">
-                  <h3 className="font-display text-2xl">{p.title}</h3>
-                  <div className="mt-2 flex items-center justify-between text-sm text-muted-foreground">
-                    <span>{p.days}</span>
-                    <span className="text-foreground font-semibold">from ${p.price}</span>
-                  </div>
-                  <Link to="/auth"><Button variant="outline" className="mt-4 w-full rounded-full">Explore</Button></Link>
+              <Link
+                key={p.title}
+                to="/auth"
+                className="group overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-luxury"
+              >
+                <div className="relative h-32 overflow-hidden">
+                  <img
+                    src={p.img}
+                    alt={p.title}
+                    width={900}
+                    height={600}
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                  <span className="absolute left-3 top-3 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-foreground">{p.spots}</span>
                 </div>
-              </div>
+                <div className="p-4">
+                  <h3 className="font-display text-lg leading-tight">{p.title}</h3>
+                  <div className="mt-1.5 flex items-center justify-between text-xs text-muted-foreground">
+                    <span>{p.days}</span>
+                    <span className="font-semibold text-foreground">from ₹{(p.price * 88).toLocaleString("en-IN")}</span>
+                  </div>
+                  <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary">
+                    Explore itinerary <ArrowRight className="size-3 transition-transform group-hover:translate-x-1" />
+                  </span>
+                </div>
+              </Link>
             ))}
           </div>
         </div>
       </section>
+
 
       {/* AI FEATURES */}
       <section id="features" className="px-6 py-24 bg-surface">
