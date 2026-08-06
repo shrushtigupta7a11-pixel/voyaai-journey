@@ -5,6 +5,15 @@ import {
   Bell, Search, Star, Compass, Instagram, Twitter, Github,
 } from "lucide-react";
 import heroCoast from "@/assets/hero-coast.jpg";
+import destKyoto from "@/assets/dest-kyoto.jpg";
+import destSantorini from "@/assets/dest-santorini.jpg";
+import destIceland from "@/assets/dest-iceland.jpg";
+import destMarrakesh from "@/assets/dest-marrakesh.jpg";
+import destQueenstown from "@/assets/dest-queenstown.jpg";
+import destLisbon from "@/assets/dest-lisbon.jpg";
+import pkgAmalfi from "@/assets/pkg-amalfi.jpg";
+import pkgKyoto from "@/assets/pkg-kyoto.jpg";
+import pkgIceland from "@/assets/pkg-iceland.jpg";
 import { PublicNav } from "@/components/layout/PublicNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
